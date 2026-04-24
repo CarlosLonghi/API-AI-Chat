@@ -18,11 +18,19 @@ spring:
           JDBC:
             initialize-schema: never # ou 'always'
 
+# MYSQL Config
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
+#    username: myuser
+#    password: secret
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# Postgres Config
   datasource:
-    url: jdbc:mysql://localhost:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:postgresql://localhost:5432/mydatabase
     username: myuser
     password: secret
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     show-sql: true
