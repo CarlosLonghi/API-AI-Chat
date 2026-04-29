@@ -8,6 +8,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MemoryChatService {
 
@@ -15,6 +17,11 @@ public class MemoryChatService {
 
     private final MemoryChatRepository memoryChatRepository;
 
+    /* TODO: Implementar integração com Spring Security.
+    * Atualmente, o ID do usuário é estático. No futuro, deve ser extraído do
+    * SecurityContextHolder ou via @AuthenticationPrincipal para suportar múltiplos usuários
+    * autenticados via JWT/Sessão.
+    */
     private static final String DEFAULT_USER_ID = "carlos";
     private static final String DESCRIPTION_PROMPT = "Crie um título curto (máx 30 caracteres) em pt-BR para este chat. Não use aspas. Seja ultra-direto. Se passar de 30 caracteres, você será penalizado. Mensagem: ";
 
@@ -42,8 +49,6 @@ public class MemoryChatService {
                 .content();
     }
 
-    record NewChatResponse(String chatId, String description, String response) {}
-
     public NewChatResponse createChat(String message) {
         String description = generateChatDescription(message);
         String chatId = this.memoryChatRepository.generateChatId(DEFAULT_USER_ID, description);
@@ -52,10 +57,21 @@ public class MemoryChatService {
     }
 
     private String generateChatDescription(String message) {
-        String description = this.chatClient.prompt()
+        String rawDescription = this.chatClient.prompt()
                 .user(DESCRIPTION_PROMPT + message)
                 .call()
                 .content();
-        return description != null ? description.substring(0, Math.min(description.length(), 30)) : null;
+
+        if (rawDescription == null || rawDescription.isBlank()) {
+            return "Nova conversa";
+        }
+
+        return rawDescription.length() <= 30
+                ? rawDescription.trim()
+                : rawDescription.substring(0, 30).trim();
+    }
+
+    public List<ChatView> getAllChatsByUser() {
+        return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
     }
 }

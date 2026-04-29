@@ -2,6 +2,8 @@ package br.com.carloslonghi.api_chat_ai.memory;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/chat/memory")
 public class MemoryChatController {
@@ -19,7 +21,12 @@ public class MemoryChatController {
     }
 
     @PostMapping("/new")
-    MemoryChatService.NewChatResponse newChat(@RequestBody MemoryChatDTO message) {
+    NewChatResponse newChat(@RequestBody MemoryChatDTO message) {
         return this.memoryChatService.createChat(message.message());
+    }
+
+    @GetMapping
+    List<ChatView> getAllChatsByUser() {
+        return this.memoryChatService.getAllChatsByUser();
     }
 }
