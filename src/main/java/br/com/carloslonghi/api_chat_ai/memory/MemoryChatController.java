@@ -1,5 +1,10 @@
 package br.com.carloslonghi.api_chat_ai.memory;
 
+import br.com.carloslonghi.api_chat_ai.memory.dto.request.ChatMessageRequest;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatHistoryResponse;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatReplyResponse;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatSummaryResponse;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.NewChatResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,23 +20,23 @@ public class MemoryChatController {
     }
 
     @PostMapping("/{chatId}")
-    MemoryChatDTO memoryChat(@PathVariable String chatId, @RequestBody MemoryChatDTO message) {
+    ChatReplyResponse continueChat(@PathVariable String chatId, @RequestBody ChatMessageRequest message) {
         String response = this.memoryChatService.sendMessage(message.message(), chatId);
-        return new MemoryChatDTO(response);
+        return new ChatReplyResponse(response);
     }
 
     @PostMapping("/new")
-    NewChatResponse newChat(@RequestBody MemoryChatDTO message) {
+    NewChatResponse newChat(@RequestBody ChatMessageRequest message) {
         return this.memoryChatService.createChat(message.message());
     }
 
     @GetMapping
-    List<ChatView> getAllChatsByUser() {
+    List<ChatSummaryResponse> getAllChats() {
         return this.memoryChatService.getAllChatsByUser();
     }
 
     @GetMapping("/{chatId}")
-    List<ChatMessage> getChatMessages(@PathVariable String chatId) {
+    List<ChatHistoryResponse> getChatMessages(@PathVariable String chatId) {
         return this.memoryChatService.getChatMessages(chatId);
     }
 }

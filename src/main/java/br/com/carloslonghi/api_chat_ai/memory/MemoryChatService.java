@@ -1,5 +1,8 @@
 package br.com.carloslonghi.api_chat_ai.memory;
 
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatHistoryResponse;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatSummaryResponse;
+import br.com.carloslonghi.api_chat_ai.memory.dto.response.NewChatResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -75,11 +78,11 @@ public class MemoryChatService {
                 : rawDescription.substring(0, 30).trim();
     }
 
-    public List<ChatView> getAllChatsByUser() {
+    public List<ChatSummaryResponse> getAllChatsByUser() {
         return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
     }
 
-    public List<ChatMessage> getChatMessages(String chatId) {
+    public List<ChatHistoryResponse> getChatMessages(String chatId) {
         return this.memoryChatRepository.getChatMessages(chatId);
     }
 }
