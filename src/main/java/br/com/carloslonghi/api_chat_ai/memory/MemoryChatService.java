@@ -42,6 +42,10 @@ public class MemoryChatService {
     }
 
     String sendMessage(String message, String chatId) {
+        if (!this.memoryChatRepository.existsChat(chatId)) {
+            throw new ChatNotFoundException(chatId);
+        }
+
         return this.chatClient.prompt()
                 .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, chatId))
                 .user(message)

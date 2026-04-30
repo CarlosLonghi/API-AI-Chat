@@ -34,4 +34,10 @@ public class MemoryChatRepository {
                 new ChatMessage(rs.getString("content"), rs.getString("type"), rs.getString("timestamp"))
         , chatId);
     }
+
+    public boolean existsChat(String chatId) {
+        final String sql = "SELECT COUNT(*) FROM spring_ai_chat_memory WHERE conversation_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
+        return count != null && count > 0;
+    }
 }
