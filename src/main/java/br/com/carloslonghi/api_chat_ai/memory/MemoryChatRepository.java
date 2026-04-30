@@ -27,4 +27,11 @@ public class MemoryChatRepository {
                     rs.getString("description"))
         , userId);
     }
+
+    public List<ChatMessage> getChatMessages(String chatId) {
+        final String sql = "SELECT content, type, timestamp FROM spring_ai_chat_memory WHERE conversation_id = ? ORDER BY timestamp ASC";
+        return jdbcTemplate.query(sql, (ResultSet rs, int __) ->
+                new ChatMessage(rs.getString("content"), rs.getString("type"), rs.getString("timestamp"))
+        , chatId);
+    }
 }

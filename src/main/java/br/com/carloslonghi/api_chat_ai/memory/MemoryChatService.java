@@ -74,4 +74,8 @@ public class MemoryChatService {
     public List<ChatView> getAllChatsByUser() {
         return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
     }
+
+    public List<ChatMessage> getChatMessages(String chatId) {
+        return this.memoryChatRepository.getChatMessages(chatId);
+    }
 }

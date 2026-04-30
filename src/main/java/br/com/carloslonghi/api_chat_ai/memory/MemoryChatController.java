@@ -29,4 +29,9 @@ public class MemoryChatController {
     List<ChatView> getAllChatsByUser() {
         return this.memoryChatService.getAllChatsByUser();
     }
+
+    @GetMapping("/{chatId}")
+    List<ChatMessage> getChatMessages(@PathVariable String chatId) {
+        return this.memoryChatService.getChatMessages(chatId);
+    }
 }
