@@ -1,8 +1,8 @@
-package br.com.carloslonghi.api_chat_ai.memory;
+package br.com.carloslonghi.apichatai.memory;
 
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatHistoryResponse;
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatSummaryResponse;
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.NewChatResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.NewChatResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;

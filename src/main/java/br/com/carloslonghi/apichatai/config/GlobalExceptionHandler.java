@@ -1,6 +1,6 @@
-package br.com.carloslonghi.api_chat_ai.config;
+package br.com.carloslonghi.apichatai.config;
 
-import br.com.carloslonghi.api_chat_ai.memory.ChatNotFoundException;
+import br.com.carloslonghi.apichatai.memory.ChatNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai.config;
+package br.com.carloslonghi.apichatai.config;
 
 import org.springframework.boot.restclient.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;

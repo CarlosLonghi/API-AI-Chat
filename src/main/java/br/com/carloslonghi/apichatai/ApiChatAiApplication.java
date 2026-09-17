@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai;
+package br.com.carloslonghi.apichatai;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

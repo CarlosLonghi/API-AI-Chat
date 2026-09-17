@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai.simple;
+package br.com.carloslonghi.apichatai.simple;
 
 public record SimpleChatDTO(String message) {
 }

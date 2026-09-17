@@ -1,7 +1,7 @@
-package br.com.carloslonghi.api_chat_ai.memory;
+package br.com.carloslonghi.apichatai.memory;
 
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatHistoryResponse;
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatSummaryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
