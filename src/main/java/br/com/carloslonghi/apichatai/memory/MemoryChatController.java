@@ -5,6 +5,9 @@ import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatReplyResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.NewChatResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,23 +23,24 @@ public class MemoryChatController {
     }
 
     @PostMapping("/{chatId}")
-    ChatReplyResponse continueChat(@PathVariable String chatId, @RequestBody ChatMessageRequest message) {
+    public ChatReplyResponse continueChat(@PathVariable String chatId, @Valid @RequestBody ChatMessageRequest message) {
         String response = this.memoryChatService.sendMessage(message.message(), chatId);
         return new ChatReplyResponse(response);
     }
 
     @PostMapping("/new")
-    NewChatResponse newChat(@RequestBody ChatMessageRequest message) {
-        return this.memoryChatService.createChat(message.message());
+    public ResponseEntity<NewChatResponse> newChat(@Valid @RequestBody ChatMessageRequest message) {
+        NewChatResponse response = this.memoryChatService.createChat(message.message());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    List<ChatSummaryResponse> getAllChats() {
+    public List<ChatSummaryResponse> getAllChats() {
         return this.memoryChatService.getAllChatsByUser();
     }
 
     @GetMapping("/{chatId}")
-    List<ChatHistoryResponse> getChatMessages(@PathVariable String chatId) {
+    public List<ChatHistoryResponse> getChatMessages(@PathVariable String chatId) {
         return this.memoryChatService.getChatMessages(chatId);
     }
 }
