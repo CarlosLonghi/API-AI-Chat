@@ -40,7 +40,7 @@ public class MemoryChatRepository {
     }
 
     public boolean existsChat(String chatId) {
-        final String sql = "SELECT COUNT(*) FROM spring_ai_chat_memory WHERE conversation_id = ?";
+        final String sql = "SELECT COUNT(*) FROM chat_memory WHERE conversation_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
         return count != null && count > 0;
     }
