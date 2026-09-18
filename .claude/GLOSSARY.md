@@ -19,6 +19,8 @@ Owned and written by Spring AI's `JdbcChatMemoryRepository` (`spring-ai-starter-
 ### `existsChat`
 `MemoryChatRepository.existsChat(chatId)` — must query `chat_memory`, since that's the table populated at chat-creation time. Querying `spring_ai_chat_memory` instead was a real bug: a brand-new chat has no row there yet (no message has been sent), so `MemoryChatService.createChat` → `sendMessage` → `existsChat` would throw `ChatNotFoundException` on the chat's own creation. Fixed; don't reintroduce by "simplifying" the two tables into one check.
 
+Also parses `chatId` into a `java.util.UUID` before binding it as a JDBC parameter — `chat_memory.conversation_id` is `UUID` in Postgres, and the driver doesn't implicitly cast a `String`/varchar parameter to `uuid` in a `WHERE` comparison (`PSQLException: operator does not exist: uuid = character varying`). A malformed `chatId` (fails `UUID.fromString`) is treated as "doesn't exist" (returns `false`), not as a 500.
+
 ### `MessageWindowChatMemory`
 Spring AI class configured in `MemoryChatService` with `maxMessages(10)` — caps how many past messages are included in the prompt sent to the model. Independent from how much history is stored (all of it) or returned by `GET /{chatId}` (all of it too).
 

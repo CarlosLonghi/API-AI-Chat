@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class MemoryChatRepository {
@@ -40,8 +41,15 @@ public class MemoryChatRepository {
     }
 
     public boolean existsChat(String chatId) {
+        UUID conversationId;
+        try {
+            conversationId = UUID.fromString(chatId);
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
+
         final String sql = "SELECT COUNT(*) FROM chat_memory WHERE conversation_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, conversationId);
         return count != null && count > 0;
     }
 }
