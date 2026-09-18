@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai.simple;
+package br.com.carloslonghi.apichatai.simple;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;

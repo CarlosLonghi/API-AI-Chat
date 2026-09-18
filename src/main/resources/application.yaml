@@ -32,14 +32,6 @@ spring:
     password: secret
     driver-class-name: org.postgresql.Driver
 
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-
 # DEBUG
 logging:
   level:

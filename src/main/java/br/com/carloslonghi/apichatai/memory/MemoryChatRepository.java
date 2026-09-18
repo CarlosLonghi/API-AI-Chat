@@ -1,11 +1,12 @@
-package br.com.carloslonghi.api_chat_ai.memory;
+package br.com.carloslonghi.apichatai.memory;
 
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatHistoryResponse;
-import br.com.carloslonghi.api_chat_ai.memory.dto.response.ChatSummaryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
+import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class MemoryChatRepository {
@@ -15,9 +16,9 @@ public class MemoryChatRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public String generateChatId(String userId, String description) {
+    public UUID generateChatId(String userId, String description) {
         final String sql = "INSERT INTO chat_memory (user_id, description) VALUES (?, ?) RETURNING conversation_id";
-        return jdbcTemplate.queryForObject(sql, String.class, userId, description);
+        return jdbcTemplate.queryForObject(sql, UUID.class, userId, description);
     }
 
     public List<ChatSummaryResponse> getAllChatsByUser(String userId) {
@@ -39,8 +40,8 @@ public class MemoryChatRepository {
         , chatId);
     }
 
-    public boolean existsChat(String chatId) {
-        final String sql = "SELECT COUNT(*) FROM spring_ai_chat_memory WHERE conversation_id = ?";
+    public boolean existsChat(UUID chatId) {
+        final String sql = "SELECT COUNT(*) FROM chat_memory WHERE conversation_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
         return count != null && count > 0;
     }

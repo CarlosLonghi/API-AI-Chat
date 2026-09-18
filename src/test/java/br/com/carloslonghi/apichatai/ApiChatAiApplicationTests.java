@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai;
+package br.com.carloslonghi.apichatai;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

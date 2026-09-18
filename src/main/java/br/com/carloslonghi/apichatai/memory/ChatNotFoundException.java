@@ -1,4 +1,4 @@
-package br.com.carloslonghi.api_chat_ai.memory;
+package br.com.carloslonghi.apichatai.memory;
 
 public class ChatNotFoundException extends RuntimeException {
     public ChatNotFoundException(String message) {
