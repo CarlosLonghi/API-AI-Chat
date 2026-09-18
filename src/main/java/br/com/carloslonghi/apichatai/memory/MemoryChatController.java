@@ -1,5 +1,6 @@
 package br.com.carloslonghi.apichatai.memory;
 
+import br.com.carloslonghi.apichatai.memory.api.spec.MemoryChatApi;
 import br.com.carloslonghi.apichatai.memory.dto.request.ChatMessageRequest;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatReplyResponse;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/chat/memory")
-public class MemoryChatController {
+public class MemoryChatController implements MemoryChatApi {
 
     private final MemoryChatService memoryChatService;
 
@@ -24,9 +25,9 @@ public class MemoryChatController {
     }
 
     @PostMapping("/{chatId}")
-    public ChatReplyResponse continueChat(@PathVariable UUID chatId, @Valid @RequestBody ChatMessageRequest message) {
+    public ResponseEntity<ChatReplyResponse> continueChat(@PathVariable UUID chatId, @Valid @RequestBody ChatMessageRequest message) {
         String response = this.memoryChatService.sendMessage(message.message(), chatId);
-        return new ChatReplyResponse(response);
+        return ResponseEntity.ok(new ChatReplyResponse(response));
     }
 
     @PostMapping("/new")
@@ -36,12 +37,12 @@ public class MemoryChatController {
     }
 
     @GetMapping
-    public List<ChatSummaryResponse> getAllChats() {
-        return this.memoryChatService.getAllChatsByUser();
+    public ResponseEntity<List<ChatSummaryResponse>> getAllChats() {
+        return ResponseEntity.ok(this.memoryChatService.getAllChatsByUser());
     }
 
     @GetMapping("/{chatId}")
-    public List<ChatHistoryResponse> getChatMessages(@PathVariable UUID chatId) {
-        return this.memoryChatService.getChatMessages(chatId);
+    public ResponseEntity<List<ChatHistoryResponse>> getChatMessages(@PathVariable UUID chatId) {
+        return ResponseEntity.ok(this.memoryChatService.getChatMessages(chatId));
     }
 }
