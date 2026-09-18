@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/chat/memory")
@@ -23,7 +24,7 @@ public class MemoryChatController {
     }
 
     @PostMapping("/{chatId}")
-    public ChatReplyResponse continueChat(@PathVariable String chatId, @Valid @RequestBody ChatMessageRequest message) {
+    public ChatReplyResponse continueChat(@PathVariable UUID chatId, @Valid @RequestBody ChatMessageRequest message) {
         String response = this.memoryChatService.sendMessage(message.message(), chatId);
         return new ChatReplyResponse(response);
     }
@@ -40,7 +41,7 @@ public class MemoryChatController {
     }
 
     @GetMapping("/{chatId}")
-    public List<ChatHistoryResponse> getChatMessages(@PathVariable String chatId) {
+    public List<ChatHistoryResponse> getChatMessages(@PathVariable UUID chatId) {
         return this.memoryChatService.getChatMessages(chatId);
     }
 }

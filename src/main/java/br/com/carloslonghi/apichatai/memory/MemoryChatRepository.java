@@ -16,9 +16,9 @@ public class MemoryChatRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public String generateChatId(String userId, String description) {
+    public UUID generateChatId(String userId, String description) {
         final String sql = "INSERT INTO chat_memory (user_id, description) VALUES (?, ?) RETURNING conversation_id";
-        return jdbcTemplate.queryForObject(sql, String.class, userId, description);
+        return jdbcTemplate.queryForObject(sql, UUID.class, userId, description);
     }
 
     public List<ChatSummaryResponse> getAllChatsByUser(String userId) {
@@ -40,16 +40,9 @@ public class MemoryChatRepository {
         , chatId);
     }
 
-    public boolean existsChat(String chatId) {
-        UUID conversationId;
-        try {
-            conversationId = UUID.fromString(chatId);
-        } catch (IllegalArgumentException exception) {
-            return false;
-        }
-
+    public boolean existsChat(UUID chatId) {
         final String sql = "SELECT COUNT(*) FROM chat_memory WHERE conversation_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, conversationId);
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
         return count != null && count > 0;
     }
 }

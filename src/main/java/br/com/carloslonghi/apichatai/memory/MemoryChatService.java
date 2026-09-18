@@ -12,6 +12,7 @@ import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryReposito
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MemoryChatService {
@@ -44,13 +45,13 @@ public class MemoryChatService {
                 .build();
     }
 
-    String sendMessage(String message, String chatId) {
+    String sendMessage(String message, UUID chatId) {
         if (!this.memoryChatRepository.existsChat(chatId)) {
-            throw new ChatNotFoundException(chatId);
+            throw new ChatNotFoundException(chatId.toString());
         }
 
         return this.chatClient.prompt()
-                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, chatId.toString()))
                 .user(message)
                 .call()
                 .content();
@@ -58,9 +59,9 @@ public class MemoryChatService {
 
     public NewChatResponse createChat(String message) {
         String description = generateChatDescription(message);
-        String chatId = this.memoryChatRepository.generateChatId(DEFAULT_USER_ID, description);
+        UUID chatId = this.memoryChatRepository.generateChatId(DEFAULT_USER_ID, description);
         String response = this.sendMessage(message, chatId);
-        return new NewChatResponse(chatId, description, response);
+        return new NewChatResponse(chatId.toString(), description, response);
     }
 
     private String generateChatDescription(String message) {
@@ -82,7 +83,7 @@ public class MemoryChatService {
         return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
     }
 
-    public List<ChatHistoryResponse> getChatMessages(String chatId) {
-        return this.memoryChatRepository.getChatMessages(chatId);
+    public List<ChatHistoryResponse> getChatMessages(UUID chatId) {
+        return this.memoryChatRepository.getChatMessages(chatId.toString());
     }
 }
