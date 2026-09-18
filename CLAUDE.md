@@ -37,6 +37,8 @@ Cada modo de chat é um pacote próprio e autocontido — não há camada `contr
   - `POST /{chatId}` — continua um chat existente. Valida a existência do chat (`existsChat`, contra `chat_memory` — ver Gotchas) antes de chamar o modelo; se não existir, `ChatNotFoundException` → 404.
   - `GET` — lista os chats do usuário (`chat_memory`, filtrado por `user_id`).
   - `GET /{chatId}` — histórico de mensagens (tabela `spring_ai_chat_memory`, gerenciada pelo Spring AI via `JdbcChatMemoryRepository`).
+  - `PATCH /{chatId}` — altera o título (`description`) do chat; body `UpdateChatDescriptionRequest` (`@NotBlank`, `@Size(max = 30)` por causa do `VARCHAR(30)`). Retorna `200` com `ChatSummaryResponse`; `ChatNotFoundException` → 404 se `updateDescription` não afetar nenhuma linha.
+  - `DELETE /{chatId}` — exclui o chat: apaga as linhas de `spring_ai_chat_memory` (`conversation_id` como `String`) e de `chat_memory` (como `UUID`) numa transação (`@Transactional` em `MemoryChatService.deleteChat`) — não há FK entre as tabelas. Retorna `204`; 404 se o chat não existir.
   - **Duas tabelas distintas**: `chat_memory` é uma tabela própria do projeto (metadados: `conversation_id`, `user_id`, `description`); `spring_ai_chat_memory` é gerenciada pelo `JdbcChatMemoryRepository` do Spring AI (mensagens: `conversation_id`, `content`, `type`, `timestamp`). `MessageWindowChatMemory` limita o contexto enviado ao modelo às últimas 10 mensagens (`MemoryChatService`), mas o histórico completo continua no banco.
   - Advisors do `ChatClient` (`MemoryChatService`): `MessageChatMemoryAdvisor` (injeta histórico) + `SimpleLoggerAdvisor` (debug, ver `logging.level` no `application.yaml`).
 

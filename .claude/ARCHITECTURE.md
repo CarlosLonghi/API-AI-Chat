@@ -28,7 +28,9 @@ src/main/java/br/com/carloslonghi/apichatai/
     ├── ChatNotFoundException.java
     ├── api/spec/MemoryChatApi.java    # Swagger contract: @Tag/@Operation/@ApiResponses/@Parameter
     └── dto/
-        ├── request/ChatMessageRequest.java          # @NotBlank message, @Schema
+        ├── request/
+        │   ├── ChatMessageRequest.java               # @NotBlank message, @Schema
+        │   └── UpdateChatDescriptionRequest.java     # @NotBlank @Size(max=30) description, @Schema
         └── response/
             ├── ChatHistoryResponse.java              # one row of spring_ai_chat_memory, @Schema
             ├── ChatReplyResponse.java                # @Schema

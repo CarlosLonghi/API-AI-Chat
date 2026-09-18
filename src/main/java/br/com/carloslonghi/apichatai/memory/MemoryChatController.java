@@ -2,6 +2,7 @@ package br.com.carloslonghi.apichatai.memory;
 
 import br.com.carloslonghi.apichatai.memory.api.spec.MemoryChatApi;
 import br.com.carloslonghi.apichatai.memory.dto.request.ChatMessageRequest;
+import br.com.carloslonghi.apichatai.memory.dto.request.UpdateChatDescriptionRequest;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatReplyResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
@@ -39,6 +40,17 @@ public class MemoryChatController implements MemoryChatApi {
     @GetMapping
     public ResponseEntity<List<ChatSummaryResponse>> getAllChats() {
         return ResponseEntity.ok(this.memoryChatService.getAllChatsByUser());
+    }
+
+    @PatchMapping("/{chatId}")
+    public ResponseEntity<ChatSummaryResponse> updateChatDescription(@PathVariable UUID chatId, @Valid @RequestBody UpdateChatDescriptionRequest request) {
+        return ResponseEntity.ok(this.memoryChatService.updateChatDescription(chatId, request.description()));
+    }
+
+    @DeleteMapping("/{chatId}")
+    public ResponseEntity<Void> deleteChat(@PathVariable UUID chatId) {
+        this.memoryChatService.deleteChat(chatId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{chatId}")

@@ -10,6 +10,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -81,6 +82,22 @@ public class MemoryChatService {
 
     public List<ChatSummaryResponse> getAllChatsByUser() {
         return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
+    }
+
+    public ChatSummaryResponse updateChatDescription(UUID chatId, String description) {
+        String newDescription = description.trim();
+        if (!this.memoryChatRepository.updateDescription(chatId, newDescription)) {
+            throw new ChatNotFoundException(chatId.toString());
+        }
+        return new ChatSummaryResponse(chatId.toString(), newDescription);
+    }
+
+    @Transactional
+    public void deleteChat(UUID chatId) {
+        if (!this.memoryChatRepository.existsChat(chatId)) {
+            throw new ChatNotFoundException(chatId.toString());
+        }
+        this.memoryChatRepository.deleteChat(chatId);
     }
 
     public List<ChatHistoryResponse> getChatMessages(UUID chatId) {
