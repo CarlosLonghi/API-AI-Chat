@@ -41,6 +41,13 @@ Gerenciamento de conversas persistentes.
 - **GET** `/api/v1/chat/memory/{chatId}`
   - Recupera o histórico completo de mensagens de um chat específico.
 
+- **PATCH** `/api/v1/chat/memory/{chatId}`
+  - Altera o título do chat (máx. 30 caracteres).
+  - **Body:** `{ "description": "Novo título" }`
+
+- **DELETE** `/api/v1/chat/memory/{chatId}`
+  - Exclui o chat e todo o seu histórico de mensagens. Retorna `204 No Content`.
+
 ## Como Executar?
 
 ### 1. Clonar o Repositório
