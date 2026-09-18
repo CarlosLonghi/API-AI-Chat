@@ -83,6 +83,14 @@ public class MemoryChatService {
         return this.memoryChatRepository.getAllChatsByUser(DEFAULT_USER_ID);
     }
 
+    public ChatSummaryResponse updateChatDescription(UUID chatId, String description) {
+        String newDescription = description.trim();
+        if (!this.memoryChatRepository.updateDescription(chatId, newDescription)) {
+            throw new ChatNotFoundException(chatId.toString());
+        }
+        return new ChatSummaryResponse(chatId.toString(), newDescription);
+    }
+
     public List<ChatHistoryResponse> getChatMessages(UUID chatId) {
         return this.memoryChatRepository.getChatMessages(chatId.toString());
     }

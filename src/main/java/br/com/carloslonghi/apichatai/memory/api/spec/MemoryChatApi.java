@@ -1,6 +1,7 @@
 package br.com.carloslonghi.apichatai.memory.api.spec;
 
 import br.com.carloslonghi.apichatai.memory.dto.request.ChatMessageRequest;
+import br.com.carloslonghi.apichatai.memory.dto.request.UpdateChatDescriptionRequest;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatHistoryResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatReplyResponse;
 import br.com.carloslonghi.apichatai.memory.dto.response.ChatSummaryResponse;
@@ -93,6 +94,33 @@ public interface MemoryChatApi {
             )
     })
     ResponseEntity<List<ChatSummaryResponse>> getAllChats();
+
+    @Operation(
+            summary = "Alterar título do chat",
+            description = "Substitui o título (description) de um chat existente pelo valor informado"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Título alterado com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ChatSummaryResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Título inválido (vazio ou acima de 30 caracteres) ou chatId mal formado", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Chat não encontrado", content = @Content)
+    })
+    ResponseEntity<ChatSummaryResponse> updateChatDescription(
+            @Parameter(in = ParameterIn.PATH, description = "Identificador do chat", required = true)
+            @PathVariable UUID chatId,
+            @RequestBody(
+                    description = "Novo título do chat",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = UpdateChatDescriptionRequest.class))
+            )
+            UpdateChatDescriptionRequest request
+    );
 
     @Operation(
             summary = "Histórico de um chat",

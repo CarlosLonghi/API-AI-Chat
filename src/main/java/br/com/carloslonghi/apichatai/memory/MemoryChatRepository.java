@@ -40,6 +40,11 @@ public class MemoryChatRepository {
         , chatId);
     }
 
+    public boolean updateDescription(UUID chatId, String description) {
+        final String sql = "UPDATE chat_memory SET description = ? WHERE conversation_id = ?";
+        return jdbcTemplate.update(sql, description, chatId) > 0;
+    }
+
     public boolean existsChat(UUID chatId) {
         final String sql = "SELECT COUNT(*) FROM chat_memory WHERE conversation_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, chatId);
