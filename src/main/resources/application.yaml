@@ -32,6 +32,11 @@ spring:
     password: secret
     driver-class-name: org.postgresql.Driver
 
+springdoc:
+  api-docs:
+    path: /api/api-docs
+  override-with-generic-response: false
+
 # DEBUG
 logging:
   level:
