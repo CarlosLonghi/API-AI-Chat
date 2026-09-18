@@ -123,6 +123,20 @@ public interface MemoryChatApi {
     );
 
     @Operation(
+            summary = "Excluir chat",
+            description = "Exclui o chat e todo o seu histórico de mensagens. A operação é irreversível"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Chat excluído com sucesso", content = @Content),
+            @ApiResponse(responseCode = "400", description = "chatId mal formado", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Chat não encontrado", content = @Content)
+    })
+    ResponseEntity<Void> deleteChat(
+            @Parameter(in = ParameterIn.PATH, description = "Identificador do chat", required = true)
+            @PathVariable UUID chatId
+    );
+
+    @Operation(
             summary = "Histórico de um chat",
             description = "Retorna todas as mensagens já trocadas em um chat, em ordem cronológica"
     )

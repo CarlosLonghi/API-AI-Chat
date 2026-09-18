@@ -47,6 +47,12 @@ public class MemoryChatController implements MemoryChatApi {
         return ResponseEntity.ok(this.memoryChatService.updateChatDescription(chatId, request.description()));
     }
 
+    @DeleteMapping("/{chatId}")
+    public ResponseEntity<Void> deleteChat(@PathVariable UUID chatId) {
+        this.memoryChatService.deleteChat(chatId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{chatId}")
     public ResponseEntity<List<ChatHistoryResponse>> getChatMessages(@PathVariable UUID chatId) {
         return ResponseEntity.ok(this.memoryChatService.getChatMessages(chatId));
