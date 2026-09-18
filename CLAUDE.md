@@ -9,6 +9,7 @@ Java 21 + Spring Boot 4 REST API que expõe chat com um LLM via Spring AI (endpo
 - Tests: `./mvnw test`.
 - `docker compose up -d` sobe **apenas** o Postgres (`postgres:latest`, DB `mydatabase`); a aplicação em si não é containerizada, roda com o comando Maven acima.
 - Schema manual — não há Flyway/Liquibase. Rode `src/main/resources/schema-postgresql.sql` (padrão) ou `schema-mysql.sql` (se trocar o datasource) diretamente no banco antes de subir a aplicação. `spring.jpa.hibernate.ddl-auto` não se aplica: o projeto não usa JPA/Hibernate (não há dependência `spring-boot-starter-data-jpa`), só `JdbcTemplate` + o `JdbcChatMemoryRepository` do Spring AI.
+- Swagger UI: `/swagger-ui/index.html`. OpenAPI docs path: `/api/api-docs` (ver `springdoc.*` no `application.yaml`).
 
 ## Commit convention
 
@@ -21,11 +22,12 @@ Java 21 + Spring Boot 4 REST API que expõe chat com um LLM via Spring AI (endpo
 
 Cada modo de chat é um pacote próprio e autocontido — não há camada `controller`/`service`/`repository` compartilhada entre `simple` e `memory`:
 
-- `simple/` — `SimpleChatController` → `SimpleChatService` → `ChatClient` (sem persistência). DTOs em `simple/dto/{request,response}`.
-- `memory/` — `MemoryChatController` → `MemoryChatService` → `ChatClient` (com `ChatMemory`) + `MemoryChatRepository` (`JdbcTemplate`, tabela `chat_memory`). DTOs em `memory/dto/{request,response}`. Exceção de domínio `ChatNotFoundException`.
-- `config/` — `AIConfig` (timeout do `RestClient` usado pelo Spring AI), `GlobalExceptionHandler` (`@RestControllerAdvice` global).
+- `simple/` — `SimpleChatController` → `SimpleChatService` → `ChatClient` (sem persistência). DTOs em `simple/dto/{request,response}`. Contrato Swagger em `simple/api/spec/SimpleChatApi.java`.
+- `memory/` — `MemoryChatController` → `MemoryChatService` → `ChatClient` (com `ChatMemory`) + `MemoryChatRepository` (`JdbcTemplate`, tabela `chat_memory`). DTOs em `memory/dto/{request,response}`. Exceção de domínio `ChatNotFoundException`. Contrato Swagger em `memory/api/spec/MemoryChatApi.java`.
+- `config/` — `AIConfig` (timeout do `RestClient` usado pelo Spring AI), `GlobalExceptionHandler` (`@RestControllerAdvice` global), `SwaggerConfig` (metadados da API pro OpenAPI).
 - Controllers nunca lidam com SQL/`ChatClient` diretamente — sempre via um `*Service`. Requests validam com Bean Validation (`@NotBlank` em `message`) e os controllers usam `@Valid @RequestBody`.
 - Endpoints que criam um recurso (novo chat) retornam `201 Created`.
+- **Documentação Swagger fica fora do controller.** Cada feature tem uma interface `*/api/spec/*Api.java` com `@Tag`/`@Operation`/`@ApiResponses`/`@Parameter` (mesmo padrão da API-Eletro-Longhi); o controller só implementa a interface e mantém as anotações do Spring MVC (`@GetMapping`/`@PostMapping`/`@PathVariable`/`@RequestBody`/`@Valid`). Todo método das interfaces `*Api` retorna `ResponseEntity<T>` — os controllers seguem a mesma convenção. Os DTOs de request/response levam `@Schema(description=..., example=...)` na classe e nos campos — isso não conta como "poluir o controller".
 
 ## Modelo de domínio
 
@@ -46,7 +48,3 @@ Cada modo de chat é um pacote próprio e autocontido — não há camada `contr
 - **Suporte dual Postgres/MySQL é manual**: `schema-postgresql.sql` e `schema-mysql.sql` coexistem; só um datasource fica ativo por vez em `application.yaml` (o bloco MySQL fica comentado como referência). Trocar de banco exige descomentar o bloco certo e rodar o schema correspondente à mão.
 - Docker Compose só sobe o Postgres — a aplicação Spring Boot roda localmente com `./mvnw spring-boot:run`.
 - `spring-ai.version` é `2.0.0-M4` (milestone) — checar o repositório de milestones do Spring caso `mvn` não resolva a dependência num ambiente novo.
-
-## Próxima etapa (fora deste escopo)
-
-Documentação Swagger/OpenAPI (`springdoc-openapi`) ainda não foi adicionada — fica para uma próxima rodada.

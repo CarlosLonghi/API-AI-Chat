@@ -10,27 +10,30 @@ src/main/java/br/com/carloslonghi/apichatai/
 │
 ├── config/
 │   ├── AIConfig.java                 # RestClientCustomizer — read timeout (60s) for the Spring AI HTTP client
-│   └── GlobalExceptionHandler.java   # @RestControllerAdvice — ChatNotFoundException → 404, validation → 400, fallback → 500
+│   ├── GlobalExceptionHandler.java   # @RestControllerAdvice — ChatNotFoundException → 404, validation/type-mismatch → 400, fallback → 500
+│   └── SwaggerConfig.java            # OpenAPI bean — title/version/description/contact
 │
 ├── simple/
 │   ├── SimpleChatController.java     # POST /api/v1/chat/simple — stateless, single turn
 │   ├── SimpleChatService.java        # ChatClient.prompt().user(...).call()
+│   ├── api/spec/SimpleChatApi.java   # Swagger contract: @Tag/@Operation/@ApiResponses
 │   └── dto/
-│       ├── request/SimpleChatRequest.java   # @NotBlank message
-│       └── response/SimpleChatResponse.java
+│       ├── request/SimpleChatRequest.java   # @NotBlank message, @Schema
+│       └── response/SimpleChatResponse.java # @Schema
 │
 └── memory/
     ├── MemoryChatController.java     # /api/v1/chat/memory — multi-turn, chatId-scoped
     ├── MemoryChatService.java        # ChatClient with ChatMemory advisor; owns DEFAULT_USER_ID and description generation
     ├── MemoryChatRepository.java     # JdbcTemplate — chat_memory table (metadata) + reads from spring_ai_chat_memory (Spring AI's own table)
     ├── ChatNotFoundException.java
+    ├── api/spec/MemoryChatApi.java    # Swagger contract: @Tag/@Operation/@ApiResponses/@Parameter
     └── dto/
-        ├── request/ChatMessageRequest.java          # @NotBlank message
+        ├── request/ChatMessageRequest.java          # @NotBlank message, @Schema
         └── response/
-            ├── ChatHistoryResponse.java              # one row of spring_ai_chat_memory
-            ├── ChatReplyResponse.java
-            ├── ChatSummaryResponse.java               # one row of chat_memory (id + description)
-            └── NewChatResponse.java
+            ├── ChatHistoryResponse.java              # one row of spring_ai_chat_memory, @Schema
+            ├── ChatReplyResponse.java                # @Schema
+            ├── ChatSummaryResponse.java               # one row of chat_memory (id + description), @Schema
+            └── NewChatResponse.java                  # @Schema
 
 src/main/resources/
 ├── application.yaml
@@ -47,6 +50,8 @@ src/main/resources/
 
 **memory/** — Owns two tables (see Domain model in root `CLAUDE.md`): `chat_memory` (this project's own metadata table, written by `MemoryChatRepository`) and `spring_ai_chat_memory` (owned by Spring AI's `JdbcChatMemoryRepository`, written by the `MessageChatMemoryAdvisor` when a prompt is sent). `MemoryChatService` is the only place that talks to both the `ChatClient` and `MemoryChatRepository` — controllers never touch `MemoryChatRepository` directly.
 
+**`<feature>/api/spec/*Api.java`** — Swagger/OpenAPI contract interfaces, one per feature (same pattern as `API-Eletro-Longhi`'s `controller/api/spec/*Api.java`, adapted to this project's package-by-feature layout). Hold `@Tag`, `@Operation`, `@ApiResponses`, `@Parameter` (path variables) and the Swagger `@RequestBody` (`io.swagger.v3.oas.annotations.parameters.RequestBody`) for the request body. The controller `implements` the interface and keeps only Spring MVC annotations (`@GetMapping`/`@PostMapping`/`@PathVariable`/`@RequestBody`/`@Valid`) — no Swagger annotation belongs on the controller class itself.
+
 ## Architectural invariants
 
 - **I1 — Controllers never build SQL or call `ChatClient` directly.** Always go through a `*Service`. A controller method with a `JdbcTemplate` or `ChatClient` field is a bug.
@@ -56,6 +61,7 @@ src/main/resources/
 - **I5 — Creating a resource returns `201 Created`.** `POST /api/v1/chat/memory/new` returns `ResponseEntity<NewChatResponse>` with `201`. `POST /{chatId}` (continuing an existing chat) stays `200` — it doesn't create anything.
 - **I6 — `MemoryChatService.DEFAULT_USER_ID` is a known, documented placeholder.** There is no Spring Security integration yet; every chat belongs to the same hardcoded user. Don't work around this with per-request tricks — when auth lands, thread the real user id from `SecurityContextHolder`/`@AuthenticationPrincipal` through `MemoryChatService` → `MemoryChatRepository`.
 - **I7 — No JPA/Hibernate.** Persistence is `JdbcTemplate` (this project's `chat_memory` table) plus whatever Spring AI's `JdbcChatMemoryRepository` manages (`spring_ai_chat_memory`). Don't add `spring-boot-starter-data-jpa`/entities for this without a real reason — the schema is intentionally minimal and managed by hand (`schema-*.sql`), not Flyway/Liquibase.
+- **I8 — Swagger documentation lives in `*Api` interfaces, never on the controller.** A controller implements its feature's `*Api` interface (`memory/api/spec/MemoryChatApi.java`, `simple/api/spec/SimpleChatApi.java`) and adds no `@Operation`/`@ApiResponses`/`@Tag`/`@Parameter` of its own. Every `*Api` method returns `ResponseEntity<T>`, and the implementing controller method matches that return type. Request/response DTOs carry `@Schema(description=..., example=...)` — that's expected, not "pollution", since it lives on the DTO, not the controller.
 
 ## Data flow
 
@@ -76,8 +82,9 @@ HTTP Response (200/201/400/404/500)
 1. **Decide simple vs. memory** — does it need conversation history? If not, keep it in (or alongside) `simple/`; don't add persistence to a stateless flow.
 2. **Request/response DTOs** — new records under the feature's `dto/{request,response}`, with validation annotations where needed.
 3. **Service** — business rules; keep HTTP concerns (status codes) out, let the controller/`GlobalExceptionHandler` decide those.
-4. **Controller** — `@Valid @RequestBody`, correct HTTP status for the operation (`201` for creation, `200` otherwise).
-5. **Schema** — if a new table/column is needed, update both `schema-postgresql.sql` and `schema-mysql.sql` (there's no migration tool here — keep them in sync by hand).
-6. **Compile & test** — `./mvnw compile`, `./mvnw test`.
+4. **Controller** — `@Valid @RequestBody`, correct HTTP status for the operation (`201` for creation, `200` otherwise), returning `ResponseEntity<T>`.
+5. **`*Api` interface** — add/update the method in the feature's `api/spec/*Api.java` with `@Operation`/`@ApiResponses` (matching the real status codes) before/alongside the controller method; the controller `implements` it.
+6. **Schema** — if a new table/column is needed, update both `schema-postgresql.sql` and `schema-mysql.sql` (there's no migration tool here — keep them in sync by hand).
+7. **Compile & test** — `./mvnw compile`, `./mvnw test`.
 
 For anything crossing both `simple/` and `memory/`, a schema change, or introducing auth, consider writing an ExecPlan first — see `[[plans]]`.
